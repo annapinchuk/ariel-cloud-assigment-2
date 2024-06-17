@@ -22,6 +22,8 @@ export class RestaurantsCdkStack extends cdk.Stack {
       vpcId: 'vpc-052733467352389cf',
     });
 
+    this.createNatGatewayForPrivateSubnet(vpc);
+
     const memcachedConfigurationEndpoint = this.createMemcachedSingleInstaceInPublicSubnetForTestingPurpose(vpc, labRole);
     // Students TODO: Comment out the above line and uncomment the below line to use Elasticache, for the testing phase
     // const memcachedConfigurationEndpoint = this.createMemcachedElasticache(vpc, labRole);
@@ -39,6 +41,41 @@ export class RestaurantsCdkStack extends cdk.Stack {
       value: `MEMCACHED_CONFIGURATION_ENDPOINT='${memcachedConfigurationEndpoint}' TABLE_NAME='${table.tableName}' AWS_REGION='${this.region}' USE_CACHE='${useCacheFlag}' npm test`,
     });
 
+  }
+
+  private createNatGatewayForPrivateSubnet(vpc: cdk.aws_ec2.IVpc) {
+    // Note for students: This is for cost reduction purposes. you shold not change this code.
+
+    // create elastic IP for nat gateway
+    const cfnEip = new ec2.CfnEIP(this, 'MyCfnEIP', {
+      domain: 'vpc',
+    });
+
+    // create nat gateway for private subnet
+    const cfnNatGateway = new ec2.CfnNatGateway(this, 'MyCfnNatGateway', {
+      subnetId: vpc.publicSubnets[0].subnetId,
+      allocationId: cfnEip.attrAllocationId,
+    });
+
+    // create route table for private subnet
+    const cfnRouteTable = new ec2.CfnRouteTable(this, 'MyCfnRouteTable', {
+      vpcId: vpc.vpcId,
+    });
+
+    // create route for private subnet to the nat in case of internet access
+    new ec2.CfnRoute(this, 'MyCfnRoute', {
+      routeTableId: cfnRouteTable.ref,
+      destinationCidrBlock: '0.0.0.0/0',
+      natGatewayId: cfnNatGateway.ref,
+    });
+
+    // associate the route table with the private subnet
+    vpc.privateSubnets.forEach((subnet, index) => {
+      new ec2.CfnSubnetRouteTableAssociation(this, `MyCfnSubnetRouteTableAssociation${index}`, {
+        routeTableId: cfnRouteTable.ref,
+        subnetId: subnet.subnetId,
+      });
+    });
   }
 
   private deployApplicationInfrastructure(deploymentBucket: cdk.aws_s3.Bucket, memcachedConfigurationEndpoint: string, table: cdk.aws_dynamodb.Table, useCacheFlag : boolean, vpc: cdk.aws_ec2.IVpc, labRole: cdk.aws_iam.IRole) {
@@ -104,7 +141,7 @@ export class RestaurantsCdkStack extends cdk.Stack {
   private deployTheApplicationArtifactToS3Bucket(labRole: cdk.aws_iam.IRole) {
     // Note for students: This is for deployment purposes. you shold not change this code.
     const bucket = new s3.Bucket(this, 'DeploymentArtifact', {
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      removalPolicy: cdk.RemovalPolicy.RETAIN_ON_UPDATE_OR_DELETE,
     });
 
     // Deploy the website content to the S3 bucket
