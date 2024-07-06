@@ -15,11 +15,11 @@ export class RestaurantsCdkStack extends cdk.Stack {
     const useCacheFlag = true;
 
     // Students TODO Account Details: Change to your account id
-    const labRole = iam.Role.fromRoleArn(this, 'Role', "arn:aws:iam::079553702230:role/LabRole", { mutable: false });
+    const labRole = iam.Role.fromRoleArn(this, 'Role', "arn:aws:iam::067350721037:role/LabRole", { mutable: false });
 
     // Students TODO Account Details: Change the vpcId to the VPC ID of your existing VPC
     const vpc = ec2.Vpc.fromLookup(this, 'VPC', {
-      vpcId: 'vpc-052733467352389cf',
+      vpcId: 'vpc-002169d23004b1ff9',
     });
 
     this.createNatGatewayForPrivateSubnet(vpc);
@@ -160,6 +160,7 @@ export class RestaurantsCdkStack extends cdk.Stack {
     return bucket;
   }
 
+  
   private createDynamoDBTable() {
     // Students TODO: Change the table schema as needed
 
@@ -169,6 +170,33 @@ export class RestaurantsCdkStack extends cdk.Stack {
       billingMode: dynamodb.BillingMode.PROVISIONED,
       readCapacity: 1, // Note for students: you may need to change this num read capacity for scaling testing if you belive that is right
       writeCapacity: 1, // Note for students: you may need to change this num write capacity for scaling testing if you belive that is right
+    });
+
+    table.addGlobalSecondaryIndex({
+      indexName: 'CuisineIndex',
+      partitionKey: { name: 'Cuisine', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'Rating', type: dynamodb.AttributeType.NUMBER },
+      projectionType: dynamodb.ProjectionType.ALL,
+      readCapacity: 1,
+      writeCapacity: 1,
+    });
+    
+    table.addGlobalSecondaryIndex({
+      indexName: 'Georegionindex',
+      partitionKey: { name: 'GeoRegion', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'Rating', type: dynamodb.AttributeType.NUMBER },
+      projectionType: dynamodb.ProjectionType.ALL,
+      readCapacity: 1,
+      writeCapacity: 1,
+    });
+    
+    table.addGlobalSecondaryIndex({
+      indexName: 'Georegioncuisineindex',
+      partitionKey: { name: 'GeoRegion', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'Cuisine', type: dynamodb.AttributeType.STRING },
+      projectionType: dynamodb.ProjectionType.ALL,
+      readCapacity: 1,
+      writeCapacity: 1,
     });
 
     // Output the table name
