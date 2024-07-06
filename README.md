@@ -1,4 +1,4 @@
-# Assignment 2
+# Assignment 2 :)
 
 # The Assignment Story
 We are going to build an API for "Wolt" Semi like platform. 
