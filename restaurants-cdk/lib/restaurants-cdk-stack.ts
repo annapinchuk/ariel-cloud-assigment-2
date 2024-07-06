@@ -172,6 +172,7 @@ export class RestaurantsCdkStack extends cdk.Stack {
       writeCapacity: 1, // Note for students: you may need to change this num write capacity for scaling testing if you belive that is right
     });
 
+    
     table.addGlobalSecondaryIndex({
       indexName: 'CuisineIndex',
       partitionKey: { name: 'Cuisine', type: dynamodb.AttributeType.STRING },
