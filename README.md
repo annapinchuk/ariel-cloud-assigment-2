@@ -53,10 +53,14 @@ npm install
 ```bash
 cdk deploy
 ```
+copy the load balancer to the browser and check.
+should look like this : <img src="Images/task1.PNG" alt="with" /> 
+
 This will set up the VPC, DynamoDB table, and EC2 instances required for the application.
 
 ### Configuration
-- copy the credentials. and write ```bash
+- copy the credentials. and write
+  ```bash
   nano ~/.aws/credentials
   ```
 - Adjust all TODO statments
@@ -73,15 +77,20 @@ This will set up the VPC, DynamoDB table, and EC2 instances required for the app
 ### Usage
 #### Start the Application
 copy the run command from the deploy massage
+#### should look like this : <img src="Images/task2.PNG" alt="with" /> 
 
 ### Load Testing
 #### Load Test Script
 The LoadTest.js script is used to perform load testing. It can send a large number of requests to the application to test its performance under load.
 
 #### My results 
-- without cache: <img src="Images/without.png" alt="without" /> 
+- without cache:
+  
+    <img src="Images/without.png" alt="without" /> 
 
-- with cache: <img src="Images/with.png" alt="with" /> 
+- with cache:
+  
+     <img src="Images/with.png" alt="with" /> 
 
 
 #### Configuration
